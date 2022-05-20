@@ -182,34 +182,3 @@ Within a minute or so, we should see the higher CPU load by executing:
 ```shell
 kubectl get hpa
 ```
-
-## Prometheus and Grafana
-
-### Install the grafana-prometheus stack
-
-```shell
-helm install prometheus prometheus-community/kube-prometheus-stack
-```
-
-### get the grafana admin password
-
-```shell
-kubectl get secret prometheus-grafana \
- -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
- ```
-
-### Test Grafana with port-forward
-
- ```shell
-kubectl port-forward svc/prometheus-grafana 8085:80
- ```
-
- Navigate to http://localhost:8085/
-
-## Build Demo App image
-
-Skip this step if you just want to test the app on Kubernetes
-
-```shell
-docker build --pull --no-cache --squash --rm --progress plain -f Dockerfile -t sbdemo .
-```
