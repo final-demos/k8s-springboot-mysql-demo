@@ -41,10 +41,8 @@ cd springboot-demo-k8s-mysql/kubernetes
 #### Create PVC for MySQl on Oracle Cloud Infrastructure using CSI for Block Volume
 
 ```shell
-kubectl apply -f mysql-pvc-oci-bv.yaml
+kubectl apply -f mysql-pvc-manual.yaml
 ```
-
-> Use mysql-pvc-manual.yaml if deploying local
 
 #### Create Service for MySQL
 
@@ -162,7 +160,7 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 ### Create autoscale for Demo App
 
 ```shell
-kubectl autoscale deployment demoapp --cpu-percent=30 --min=1 --max=10
+kubectl autoscale deployment demoapp --cpu-percent=5 --min=1 --max=3
 ```
 
 ### Check HPA
@@ -182,13 +180,84 @@ Within a minute or so, we should see the higher CPU load by executing:
 ```shell
 kubectl get hpa
 ```
+All commands
+---------------
+kubectl create namespace demoapp
+kubectl config set-context --current --namespace=demoapp
+
+kubectl create secret generic mysql-secrets \
+  --from-literal=rootpassword=r00tDefaultPassword1! \
+  --from-literal=username=demo \
+  --from-literal=password=defaultPassword1! \
+  --from-literal=database=DB
+
+
+kubectl apply -f mysql-pvc-manual.yaml
+
+kubectl apply -f mysql-svc.yaml
+kubectl apply -f mysql-dep.yaml
+kubectl apply -f app-svc.yaml
+
+kubectl apply -f app-dep.yaml
+kubectl logs -l app=demoapp --follow
+
+in windows cmd
+kubectl run -it --rm --image=mysql:8 --restart=Never mysql-client -- mysql DB -h mysql -pr00tDefaultPassword1!
+
+kubectl port-forward deploy/demoapp 8081:8081
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Prometheus and Grafana
 
 ### Install the grafana-prometheus stack
 
 ```shell
+  choco install kubernetes-helm
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+   helm repo add stable https://charts.helm.sh/stable
+     helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack
+ kubectl port-forward deployment/prometheus-grafana 3000
 ```
 
 ### get the grafana admin password

@@ -42,17 +42,17 @@ spec:
               name: mysql-secrets
               key: password
         - name: JAVA_OPTS
-          value: -Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
+          value: -Xms512m -Xmx512m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
         ports:
         - name: http
           containerPort: 8081
         resources:
           limits:
-            cpu: 800m
-            memory: 2048Mi
+            cpu: 500m
+            memory: 512Mi
           requests:
             cpu: 500m
-            memory: 1024Mi
+            memory: 512Mi
         # livenessProbe:
         #   httpGet:
         #     path: /
