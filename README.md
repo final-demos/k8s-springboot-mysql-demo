@@ -4,19 +4,19 @@ SpringBoot Demo with MySQL running on Kubernetes
 
 ## Deploy to Kubernetes
 
-### Create namespace
+### 1 Create namespace
 
 ```shell
 kubectl create namespace demoapp
 ```
 
-### Default namespace to demoapp
+### 2 Default namespace to demoapp
 
 ```shell
 kubectl config set-context --current --namespace=demoapp
 ```
 
-### Create MySQL Secrets
+### 3 Create MySQL Secrets to have encrypted password 
 
 ```shell
 kubectl create secret generic mysql-secrets \
@@ -24,13 +24,9 @@ kubectl create secret generic mysql-secrets \
   --from-literal=username=demo \
   --from-literal=password=defaultPassword1! \
   --from-literal=database=DB
-```
+
 
 ### Clone the repo if using OCI CloudShell or local
-
-```shell
-git clone https://github.com/junior/springboot-demo-k8s-mysql.git
-```
 
 ```shell
 cd springboot-demo-k8s-mysql/kubernetes
@@ -38,27 +34,28 @@ cd springboot-demo-k8s-mysql/kubernetes
 
 ### Deploy MySQL 8
 
-#### Create PVC for MySQl on Oracle Cloud Infrastructure using CSI for Block Volume
+#### 4 Create PVC for MySQl using CSI for Block Volume
 
 ```shell
 kubectl apply -f mysql-pvc-manual.yaml
 ```
 
-#### Create Service for MySQL
+#### 5 Create Service for MySQL (for load balancing)
 
 ```shell
 kubectl apply -f mysql-svc.yaml
 ```
 
-#### Create Deployment for MySQL
+#### 6 Create Deployment for MySQL
 
 ```shell
 kubectl apply -f mysql-dep.yaml
+kubectl get pods
 ```
 
 ### Deploy the Spring Boot Demo App
 
-#### Create Service for Demo App
+#### 7 Create Service for Demo App
 
 Note: This step will create a new LoadBalancer on the infrastructure
 
@@ -66,7 +63,7 @@ Note: This step will create a new LoadBalancer on the infrastructure
 kubectl apply -f app-svc.yaml
 ```
 
-#### Create Deployment for Demo App
+#### 8 Create Deployment for Demo App
 
 Note: The app will create the necessary tables on the MySQL on the first run
 
@@ -74,7 +71,7 @@ Note: The app will create the necessary tables on the MySQL on the first run
 kubectl apply -f app-dep.yaml
 ```
 
-#### Optional: Check logs
+#### 9 Optional: Check logs
 
 ```shell
 kubectl logs -l app=demoapp --follow
@@ -82,7 +79,7 @@ kubectl logs -l app=demoapp --follow
 
 #### Optional: Insert Data to MySQL
 
-##### Connect to mysql
+##### 10 Connect to mysql
 
 ```shell
 kubectl run -it --rm --image=mysql:8 --restart=Never mysql-client -- mysql DB -h mysql -pr00tDefaultPassword1!
@@ -97,6 +94,7 @@ mysql>
 ```
 
 ```sql
+
 insert into users (first_name, last_name) values ('joe', 'doe');
 insert into users (first_name, last_name) values ('joe', 'doe');
 insert into users (first_name, last_name) values ('joe', 'doe');
@@ -133,7 +131,7 @@ Bye
 pod "mysql-client" deleted
 ```
 
-#### Optional: Test with port-forward
+#### 11 Optional: Test with port-forward
 
 ```shell
 kubectl port-forward deploy/demoapp 8081:8081
@@ -141,7 +139,7 @@ kubectl port-forward deploy/demoapp 8081:8081
 
 Navigate to http://localhost:8081/users
 
-#### Test with LoadBalancer IP Address
+#### 12 Test with LoadBalancer IP Address
 
 ```shell
 kubectl get svc
@@ -158,12 +156,12 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 ```
 
 ### Create autoscale for Demo App
-
+### when cpu utilization goes above 5%, start new pods
 ```shell
 kubectl autoscale deployment demoapp --cpu-percent=5 --min=1 --max=3
 ```
 
-### Check HPA
+### Check HPA (Horizontal Pod Autoscaling)
 
 ```shell
 kubectl get hpa
